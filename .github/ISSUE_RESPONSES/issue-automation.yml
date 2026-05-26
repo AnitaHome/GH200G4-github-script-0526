@@ -1,0 +1,30 @@
+name: Learning GitHub Script
+
+on:
+  issues:
+    types: [opened]
+
+jobs:
+  comment:
+    runs-on: ubuntu-latest
+    steps:
+      # 步驟 3.1：必須先檢出專案代碼，Node.js 才能讀取到 comment.md 檔案
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      # 步驟 3.2：執行 JavaScript 指令碼進行自動回覆
+      - name: Comment on new issue
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs')
+            // 讀取步驟 2 建立的檔案內容
+            const issueBody = fs.readFileSync(".github/ISSUE_RESPONSES/comment.md", "utf8")
+            
+            // 呼叫 GitHub API 建立留言
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: issueBody
+            })
